@@ -98,7 +98,7 @@ export default function UploadModal({ isOpen, onClose, onReelAdded }) {
       }
 
       const newReel = {
-        id: `reel-user-${Date.now()}`,
+        id: `custom-${Date.now()}`,
         title: title.trim(),
         category: category,
         tag: `${category.toUpperCase()} REEL`,

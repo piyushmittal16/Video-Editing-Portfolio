@@ -86,10 +86,9 @@ export default function App() {
         {/* Torn Ripped Paper Edge Transition into Light Graph Paper */}
         <TornDivider light={true} inverted={true} />
 
-        {/* Work Showcase: ONLY user's posted reels (no un-uploaded empty screens) */}
+        {/* Work Showcase: Piyush's 3 actual edited reels from /public folder */}
         <ReelShowcase 
           reels={reels} 
-          onOpenUpload={() => setIsUploadOpen(true)}
           onDeleteReel={handleDeleteReel}
         />
 

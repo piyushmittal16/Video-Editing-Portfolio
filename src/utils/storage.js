@@ -3,7 +3,6 @@ import { initialReels } from '../data/initialReels';
 const STORAGE_KEY = 'piyush_portfolio_custom_reels_v1';
 const CLOUD_SETTINGS_KEY = 'piyush_cloudinary_config_v1';
 
-// Default / fallback Cloudinary credentials if Piyush wants to plug his in
 export const getCloudinaryConfig = () => {
   const saved = localStorage.getItem(CLOUD_SETTINGS_KEY);
   if (saved) {
@@ -20,8 +19,8 @@ export const getCloudinaryConfig = () => {
     }
   }
   return {
-    cloudName: 'duwvyiocv', // Pre-filled from your Cloudinary dashboard!
-    uploadPreset: 'ml_default' // Pre-filled with your unsigned preset!
+    cloudName: 'duwvyiocv',
+    uploadPreset: 'ml_default'
   };
 };
 
@@ -29,19 +28,25 @@ export const saveCloudinaryConfig = (config) => {
   localStorage.setItem(CLOUD_SETTINGS_KEY, JSON.stringify(config));
 };
 
+/**
+ * Returns Piyush's 3 static public reels + any owner-added custom reels on top.
+ * Static reels are always shown first (they're the main portfolio pieces).
+ */
 export const getStoredReels = () => {
   const custom = localStorage.getItem(STORAGE_KEY);
+  let customList = [];
   if (custom) {
     try {
       const parsed = JSON.parse(custom);
       if (Array.isArray(parsed)) {
-        return parsed; // ONLY show reels posted/uploaded by Piyush!
+        customList = parsed;
       }
     } catch {
-      // fallback
+      // ignore
     }
   }
-  return []; // Zero un-uploaded empty placeholder videos!
+  // Custom reels on top, then the 3 static portfolio reels
+  return [...customList, ...initialReels];
 };
 
 export const saveCustomReel = (newReel) => {
@@ -60,26 +65,24 @@ export const saveCustomReel = (newReel) => {
 };
 
 export const deleteCustomReel = (reelId) => {
+  // Can only delete custom reels (owner-added), not the static public ones
   const current = localStorage.getItem(STORAGE_KEY);
   if (current) {
     try {
       let customList = JSON.parse(current) || [];
       customList = customList.filter(r => r.id !== reelId);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(customList));
-      return customList;
+      // Return merged list: custom + static
+      return [...customList, ...initialReels];
     } catch {
-      return [];
+      return [...initialReels];
     }
   }
-  return [];
+  return [...initialReels];
 };
 
 /**
  * Direct unsigned upload to Cloudinary (no backend required!)
- * @param {File} file - Video file from user's system
- * @param {string} cloudName - Cloudinary cloud name
- * @param {string} uploadPreset - Cloudinary unsigned upload preset
- * @param {function} onProgress - Progress callback (0 to 100)
  */
 export const uploadToCloudinary = async (file, cloudName, uploadPreset, onProgress) => {
   if (!cloudName || !uploadPreset) {
